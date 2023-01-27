@@ -3,23 +3,22 @@ const watherData = {
 
     city: '',
     country: '',
-    API_KEY: '25bf98f2482337ff0a1464a9f9c47180',
+    API_KEY: '3369900f5b58c49516413f8ecdb9439d',
     async getWeather() {
         try{
             const res = await fetch(
                 `https://api.openweathermap.org/data/2.5/weather?q=${this.city},${this.country}&units=metric&appid=${this.API_KEY}`
-                )
+            )
             const {name, main, weather} = await res.json()
-            
             console.log(await res.json())
             return{
                 name,
                 main,
                 weather
             }
-        } catch(err){
+         } catch(err){
             UI.showMessage('Error in feaching data', 'danger')
-        }
+         }
     }
 }
 
@@ -51,16 +50,6 @@ const UI = {
         }
     },
 
-    resetInput() {
-        const { cityElm, countryElm } = this.loadSelactors()
-        cityElm.value = ""
-        countryElm.value = ""
-    },
-
-    handleRemoteData() {
-        watherData.getWeather()
-    },
-
     hideMessage() {
         const messageElm = document.querySelector('#message')
         setTimeout(() => {
@@ -87,28 +76,42 @@ const UI = {
 
     getInputValues() {
         const { cityElm, countryElm } = this.loadSelactors()
+
         const isInValide = this.validateInputs(countryElm.value, cityElm.value)
         if(isInValide) return
+
         return {
             country: countryElm.value,
             city: cityElm.value
         }
     },
+    
+    resetInput() {
+        const { cityElm, countryElm } = this.loadSelactors()
+        cityElm.value = ""
+        countryElm.value = ""
+    },
+
+    async handleRemoteData() {
+        const data = await watherData.getWeather()
+        return data
+    },
 
     init() {
         const { formElm } = this.loadSelactors()
 
-        formElm.addEventListener('submit', evt => {
+        formElm.addEventListener('submit', async (evt) => {
             evt.preventDefault()
             // get input values
             const {country, city} = this.getInputValues()
-            // send data to api server
-            this.handleRemoteData()
             // seating data to data storage
             watherData.city = city
             watherData.country = country
             // reset the input values
             this.resetInput()
+            // send data to api server
+            const data = await this.handleRemoteData()
+            console.log(data)
         })
     }
 }
