@@ -10,7 +10,6 @@ const watherData = {
                 `https://api.openweathermap.org/data/2.5/weather?q=${this.city},${this.country}&units=metric&appid=${this.API_KEY}`
             )
             const {name, main, weather} = await res.json()
-            console.log(await res.json())
             return{
                 name,
                 main,
@@ -19,7 +18,7 @@ const watherData = {
          } catch(err){
             UI.showMessage('Error in feaching data', 'danger')
          }
-    }
+    },
 }
 
 const UI = {
@@ -96,6 +95,32 @@ const UI = {
         const data = await watherData.getWeather()
         return data
     },
+    getIcon(iconCode) {
+        return `https://openweathermap.org/img/w/${iconCode}.png`
+    },
+    populateUI(data) {
+        const {
+            cityInfoElm,
+            temperatureElm,
+            pressureElm,
+            humidityElm,
+            fellElm,
+            iconElm
+        } = this.loadSelactors()
+
+        const {
+          name, 
+          main: { temp, pressure, humidity },
+          weather,  
+        } = data
+
+        cityInfoElm.textContent = name
+        temperatureElm.textContent = `Temperature: ${temp}°C`
+        pressureElm.textContent = `Pressure: ${pressure}Kpa`
+        humidityElm.textContent = `Humidity: ${humidity}`
+        fellElm.textContent = weather[0].description
+        iconElm.setAttribute('src', this.getIcon(weather[0].icon))
+    },
 
     init() {
         const { formElm } = this.loadSelactors()
@@ -111,7 +136,8 @@ const UI = {
             this.resetInput()
             // send data to api server
             const data = await this.handleRemoteData()
-            console.log(data)
+            // populate UI
+            this.populateUI(data)
         })
     }
 }
@@ -119,5 +145,3 @@ const UI = {
 UI.init()
 
 const storage = {}
-
-
